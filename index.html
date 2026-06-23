@@ -41,7 +41,18 @@
 <body>
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script>
+        // Babel Standalone이 자동으로 모듈을 가져오거나 충돌을 일으키지 않도록
+        // React 프리셋의 컴파일 옵션을 'classic'으로 강제 지정하여 커스텀 프리셋을 등록합니다.
+        Babel.registerPreset('custom-react', {
+            presets: [
+                [Babel.availablePresets['react'], { runtime: 'classic' }]
+            ]
+        });
+    </script>
+
+    <!-- 커스텀 등록한 프리셋을 적용하여 컴파일러 충돌을 근본적으로 차단합니다. -->
+    <script type="text/babel" data-presets="custom-react">
         const { useState, useEffect, useRef } = React;
 
         // Lucide 아이콘 컴포넌트 - DOM 충돌 방지를 위해 Ref 사용
