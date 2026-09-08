@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3학년 1학기 성적 관리 - 예진T</title>
+    <title>2학기 성적 관리 - 예진T</title>
     
     <!-- SEO 및 소셜 공유 메타 태그 -->
-    <meta name="description" content="중학교 3학년 1학기 성적 관리 및 목표 점수 계산기 - 예진T 제작">
-    <meta property="og:title" content="3학년 1학기 성적 관리">
-    <meta property="og:description" content="성취도와 목표 점수를 한눈에 계산해 보세요!">
+    <meta name="description" content="법동중학교 2학기 성적 관리 및 목표 점수 계산기">
+    <meta property="og:title" content="2학기 성적 관리 - 예진T">
+    <meta property="og:description" content="학년별 성취도와 목표 점수를 한눈에 계산해 보세요!">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://fonts.gstatic.com/s/i/short-term/release/googlestars/graduation_cap/default/64px.png">
     
@@ -23,27 +23,35 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap');
         body { 
             font-family: 'Pretendard', sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            background-color: #F8F9FF;
+            background-color: #F6F8FD;
         }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        .animate-fade-in { animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        /* 세련된 텍스트 그라데이션 */
+        .gradient-text {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* 은은한 배경 발광 */
+        .ambient-glow {
+            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.18) 0%, rgba(246, 248, 253, 0) 70%);
         }
         /* 스크롤바 숨기기 */
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body>
+<body class="min-h-screen ambient-glow">
     <div id="root"></div>
 
     <script>
-        // Babel Standalone이 자동으로 모듈을 가져오거나 충돌을 일으키지 않도록
-        // React 프리셋의 컴파일 옵션을 'classic'으로 강제 지정하여 커스텀 프리셋을 등록합니다.
         Babel.registerPreset('custom-react', {
             presets: [
                 [Babel.availablePresets['react'], { runtime: 'classic' }]
@@ -51,12 +59,11 @@
         });
     </script>
 
-    <!-- 커스텀 등록한 프리셋을 적용하여 컴파일러 충돌을 근본적으로 차단합니다. -->
     <script type="text/babel" data-presets="custom-react">
         const { useState, useEffect, useRef } = React;
 
-        // Lucide 아이콘 컴포넌트 - DOM 충돌 방지를 위해 Ref 사용
-        const Icon = ({ name, size = 24, className = "" }) => {
+        // Lucide 아이콘 래퍼
+        const Icon = ({ name, size = 20, className = "" }) => {
             const containerRef = useRef(null);
             
             useEffect(() => {
@@ -73,57 +80,151 @@
                 }
             }, [name, size, className]);
 
-            return <span ref={containerRef} className="inline-flex items-center justify-center" style={{ width: size, height: size }} />;
+            return <span ref={containerRef} className="inline-flex items-center justify-center shrink-0" style={{ width: size, height: size }} />;
         };
 
-        const SUBJECT_CONFIG = {
-            korean: {
-                name: '국어',
-                weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
-                maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
-                perfNames: ['한 학기 책과 함께 성장하기'],
+        // 2학기 학년별 과목 및 평가 세부 데이터
+        const GRADE_CONFIG = {
+            1: {
+                title: '1학년',
+                subjects: {
+                    korean: {
+                        name: '국어',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['한 학기 책과 함께 성장하기'],
+                    },
+                    social: {
+                        name: '사회',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['아시아 지역 탐구하기'],
+                    },
+                    moral: {
+                        name: '도덕',
+                        weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
+                        perfNames: ['인권 문제 탐구 보고서 만들기', '도덕적 글쓰기'],
+                    },
+                    math: {
+                        name: '수학',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['평면도형 탐구서술하기'],
+                    },
+                    science: {
+                        name: '과학',
+                        weights: { midterm: 0.3, final: 0.3, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 20, perf2: 20 },
+                        perfNames: ['물질의 상태 변화 탐구하기', '기체의 압력과 부피 관계 탐구하기'],
+                    },
+                    techHome: {
+                        name: '기술·가정',
+                        weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
+                        perfNames: ['아이디어 제품 만들기', '청소년기 성장 보고서 작성하기'],
+                    },
+                    chinese: {
+                        name: '한문',
+                        weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
+                        perfNames: ['간지 표현이 들어간 나만의 간지 캐릭터 만들기', '한자 바르게 쓰기'],
+                    }
+                }
             },
-            social: {
-                name: '사회',
-                weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
-                maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
-                perfNames: ['기본권 바로 알기'],
+            2: {
+                title: '2학년',
+                subjects: {
+                    korean: {
+                        name: '국어',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['한 학기 책과 함께 성장하기'],
+                    },
+                    history: {
+                        name: '역사',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['십자말풀이 제작하기'],
+                    },
+                    moral: {
+                        name: '도덕',
+                        weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
+                        perfNames: ['사회 쟁점 탐구', '개념 분석 논술'],
+                    },
+                    math: {
+                        name: '수학',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['도형의 성질 이해 및 표현하기'],
+                    },
+                    science: {
+                        name: '과학',
+                        weights: { midterm: 0.3, final: 0.3, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 20, perf2: 20 },
+                        perfNames: ['음식에 있는 영양소 검출하기', '전류와 자기작용 분석하기'],
+                    },
+                    techHome: {
+                        name: '기술·가정',
+                        weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
+                        perfNames: ['친환경 자동차 만들기', '생활 소품 만들기'],
+                    },
+                    chinese: {
+                        name: '한문',
+                        weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
+                        perfNames: ['간지 표현이 들어간 나만의 간지 캐릭터 만들기', '한자 바르게 쓰기'],
+                    }
+                }
             },
-            history: {
-                name: '역사',
-                weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
-                maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
-                perfNames: ['가상 인터뷰 작성하기'],
-            },
-            moral: {
-                name: '도덕',
-                weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
-                maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
-                perfNames: ['통일 문제 탐구 보고서 작성하기', '북한과 통일 문제 작성하기'],
-            },
-            math: {
-                name: '수학',
-                weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
-                maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
-                perfNames: ['여러 가지 이차방정식의 풀이 탐구하기'],
-            },
-            science: {
-                name: '과학',
-                weights: { midterm: 0.3, final: 0.3, perf1: 1.0, perf2: 1.0 },
-                maxScores: { midterm: 100, final: 100, perf1: 20, perf2: 20 },
-                perfNames: ['화학 반응을 화학 반응식으로 나타내기', '구름 발생 원리 알기'],
-            },
-            techHome: {
-                name: '기술가정',
-                weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
-                maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
-                perfNames: ['수송장치 만들기', '신재생 에너지 타이포그래피'],
-            },
-            english: {
-                name: '영어',
-                weights: { midterm: 0.3, final: 0.3, perf1: 1.0, perf2: 1.0 },
-                maxScores: { midterm: 100, final: 100, perf1: 10, perf2: 30 },
-                perfNames: ['듣기 및 말하기', '쓰기'],
+            3: {
+                title: '3학년',
+                subjects: {
+                    korean: {
+                        name: '국어',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['한 학기 책과 함께 성장하기'],
+                    },
+                    social: {
+                        name: '사회',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['인구 변화와 인구 문제 탐구하기'],
+                    },
+                    history: {
+                        name: '역사',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['역사신문 기사 작성하기'],
+                    },
+                    moral: {
+                        name: '도덕',
+                        weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
+                        perfNames: ['과학 기술과 윤리 문제 작성하기', '나만의 엔딩 노트 만들기'],
+                    },
+                    math: {
+                        name: '수학',
+                        weights: { midterm: 0.35, final: 0.35, perf1: 1.0, perf2: 0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 30, perf2: 0 },
+                        perfNames: ['삼각비의 개념과 활용 탐구하기'],
+                    },
+                    science: {
+                        name: '과학',
+                        weights: { midterm: 0.3, final: 0.3, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 100, final: 100, perf1: 20, perf2: 20 },
+                        perfNames: ['보존되는 역학적 에너지 탐구하기', '세포 분열의 필요성 설명하기'],
+                    },
+                    techHome: {
+                        name: '기술·가정',
+                        weights: { midterm: 0, final: 0.4, perf1: 1.0, perf2: 1.0 },
+                        maxScores: { midterm: 0, final: 100, perf1: 30, perf2: 30 },
+                        perfNames: ['식사 구성안을 이용한 식사 계획하기', '근거리 무선 통신 무드등 만들기'],
+                    }
+                }
             }
         };
 
@@ -136,8 +237,9 @@
         ];
 
         function App() {
+            const [selectedGrade, setSelectedGrade] = useState(null);
             const [activeTab, setActiveTab] = useState('achievement');
-            const [selectedSubject, setSelectedSubject] = useState('korean');
+            const [selectedSubject, setSelectedSubject] = useState('');
             const [scores, setScores] = useState({
                 midterm: '',
                 final: '',
@@ -146,9 +248,11 @@
                 targetGrade: 'A'
             });
 
-            const config = SUBJECT_CONFIG[selectedSubject];
-
-            useEffect(() => {
+            // 학년 선택 시 해당 학년의 첫 번째 과목으로 자동 설정
+            const handleGradeSelect = (grade) => {
+                setSelectedGrade(grade);
+                const firstSub = Object.keys(GRADE_CONFIG[grade].subjects)[0];
+                setSelectedSubject(firstSub);
                 setScores({
                     midterm: '',
                     final: '',
@@ -156,7 +260,87 @@
                     perf2: '',
                     targetGrade: 'A'
                 });
+            };
+
+            useEffect(() => {
+                if (selectedGrade && selectedSubject) {
+                    setScores({
+                        midterm: '',
+                        final: '',
+                        perf1: '',
+                        perf2: '',
+                        targetGrade: 'A'
+                    });
+                }
             }, [selectedSubject]);
+
+            // 1단계: 학년 선택 첫 화면
+            if (!selectedGrade) {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-5 md:p-8">
+                        <div className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-[2.5rem] shadow-[0_20px_50px_rgba(79,70,229,0.08)] border border-white/80 p-8 sm:p-10 text-center animate-fade-in relative overflow-hidden">
+                            {/* 상단 은은한 그라데이션 오브젝트 */}
+                            <div className="absolute -top-24 -left-24 w-48 h-48 bg-indigo-200/50 rounded-full blur-3xl pointer-events-none"></div>
+                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-200/50 rounded-full blur-3xl pointer-events-none"></div>
+
+                            {/* 아이콘 및 뱃지 */}
+                            <div className="relative z-10 flex flex-col items-center">
+                                <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 mb-5 ring-4 ring-indigo-50">
+                                    <Icon name="graduation-cap" size={38} className="text-white" />
+                                </div>
+                                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-indigo-50/80 border border-indigo-100/60 text-indigo-600 text-xs font-bold tracking-wide mb-3">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                                    2026학년도 2학기
+                                </div>
+                                <h1 className="text-3xl font-black text-slate-800 tracking-tight">
+                                    성적 관리 시스템
+                                </h1>
+                                <p className="text-slate-400 text-sm mt-2 mb-8 font-medium">
+                                    확인하고 싶은 학년을 선택해 주세요 🚀
+                                </p>
+                            </div>
+
+                            {/* 학년 선택 리스트 */}
+                            <div className="space-y-3 relative z-10">
+                                {[1, 2, 3].map((g) => (
+                                    <button
+                                        key={g}
+                                        onClick={() => handleGradeSelect(g)}
+                                        className="w-full p-4.5 rounded-2xl border border-slate-150 bg-white hover:bg-indigo-50/40 hover:border-indigo-400/80 transition-all duration-200 flex items-center justify-between group shadow-xs hover:shadow-md hover:-translate-y-0.5"
+                                    >
+                                        <div className="flex items-center gap-3.5">
+                                            <div className="w-12 h-12 rounded-xl bg-slate-50 group-hover:bg-indigo-600 group-hover:text-white text-indigo-600 flex items-center justify-center font-black text-lg transition-colors duration-200 shadow-xs">
+                                                {g}
+                                            </div>
+                                            <div className="text-left">
+                                                <h3 className="font-extrabold text-base text-slate-800 group-hover:text-indigo-600 transition-colors">
+                                                    중학교 {g}학년
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-slate-50 group-hover:bg-indigo-50 flex items-center justify-center text-slate-300 group-hover:text-indigo-600 transition-colors">
+                                            <Icon name="chevron-right" size={18} />
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* 하단 푸터 */}
+                            <div className="mt-9 pt-6 border-t border-slate-100 flex flex-col items-center gap-1.5 text-slate-400 relative z-10">
+                                <p className="text-xs font-semibold flex items-center gap-1 text-slate-500">
+                                    꿈을 향한 너의 노력을 응원해! <span className="text-rose-400">♥</span>
+                                </p>
+                                <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
+                                    Created by 예진T
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currentGradeData = GRADE_CONFIG[selectedGrade];
+            const config = currentGradeData.subjects[selectedSubject] || Object.values(currentGradeData.subjects)[0];
 
             const handleInputChange = (e) => {
                 const { name, value } = e.target;
@@ -205,7 +389,13 @@
                 const neededRawTotal = targetMin - 0.5;
                 const neededFinalScore = (neededRawTotal - currentTotal) / weights.final;
                 
-                return neededFinalScore;
+                // 실제 시험은 정수로 채점되므로 목표 달성을 위한 최소 정수 점수(올림) 산출
+                const neededInteger = Math.max(0, Math.ceil(neededFinalScore));
+                
+                return {
+                    raw: neededFinalScore,
+                    integerScore: neededInteger
+                };
             };
 
             const isFormComplete = (mode) => {
@@ -217,86 +407,222 @@
             };
 
             return (
-                <div className="min-h-screen flex flex-col items-center p-4 md:p-10">
-                    <div className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-indigo-50">
-                        {/* 헤더 */}
-                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-8 text-white relative">
-                            <div className="absolute top-4 right-6 opacity-20"><Icon name="graduation-cap" size={80} /></div>
-                            <div className="relative z-10">
-                                <span className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase tracking-tighter">My Grade Master</span>
-                                <h1 className="text-3xl font-extrabold mt-2 tracking-tight">3학년 1학기 성적 관리</h1>
-                                <p className="text-indigo-100 text-sm mt-2 font-medium">나의 목표를 향해 한 걸음 더! 🚀</p>
+                <div className="min-h-screen flex flex-col items-center p-3 sm:p-6 md:p-10">
+                    <div className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-[0_25px_60px_rgba(79,70,229,0.07)] border border-slate-100 overflow-hidden animate-fade-in">
+                        
+                        {/* 상단 헤더 */}
+                        <div className="relative bg-gradient-to-br from-[#4338CA] via-[#4F46E5] to-[#7C3AED] p-7 sm:p-8 text-white overflow-hidden">
+                            <div className="absolute -top-16 -right-16 w-52 h-52 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                            <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-purple-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                            {/* 네비게이션 라인 */}
+                            <div className="relative z-10 flex items-center justify-between gap-2 pb-5 border-b border-white/15">
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-white text-[11px] font-bold tracking-wide border border-white/20">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                    2026학년도 2학기
+                                </div>
+                                <button 
+                                    onClick={() => setSelectedGrade(null)} 
+                                    className="px-3.5 py-1.5 rounded-full bg-white hover:bg-indigo-50 active:scale-95 text-indigo-700 hover:text-indigo-800 text-xs font-black transition-all duration-150 inline-flex items-center justify-center gap-1.5 shadow-md shadow-indigo-950/20 ring-2 ring-white/50"
+                                >
+                                    <Icon name="refresh-cw" size={13} className="text-indigo-600 font-bold" />
+                                    <span>학년 변경</span>
+                                </button>
+                            </div>
+
+                            {/* 타이틀 영역 */}
+                            <div className="relative z-10 pt-5">
+                                <div className="flex items-center gap-2">
+                                    <span className="px-2.5 py-0.5 rounded-md bg-white text-indigo-700 text-xs font-black tracking-tight shadow-xs">
+                                        {selectedGrade}학년
+                                    </span>
+                                    <span className="text-indigo-200 text-xs font-semibold">성적 관리 시스템</span>
+                                </div>
+                                <h1 className="text-2xl sm:text-3xl font-black mt-2 tracking-tight leading-snug">
+                                    {selectedGrade}학년 2학기 성적 관리
+                                </h1>
+                                <p className="text-indigo-100/85 text-xs sm:text-sm mt-1.5 font-medium flex items-center gap-1">
+                                    나의 목표를 향해 한 걸음 더! 🚀
+                                </p>
                             </div>
                         </div>
 
                         {/* 탭 버튼 */}
-                        <div className="p-4 bg-slate-50/50 flex gap-2">
-                            <button onClick={() => setActiveTab('achievement')} className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'achievement' ? 'bg-white text-indigo-600 shadow-sm border border-indigo-100' : 'text-slate-400'}`}>
-                                <Icon name="calculator" size={18} /> 성취도 계산기
-                            </button>
-                            <button onClick={() => setActiveTab('target')} className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'target' ? 'bg-white text-indigo-600 shadow-sm border border-indigo-100' : 'text-slate-400'}`}>
-                                <Icon name="target" size={18} /> 목표 점수 계산기
-                            </button>
+                        <div className="px-6 pt-5 pb-1 bg-white">
+                            <div className="flex items-center justify-between mb-2 px-1">
+                                <div className="flex items-center gap-1.5 text-xs font-black text-slate-600 uppercase tracking-wide">
+                                    <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                                    <span>계산 모드 선택</span>
+                                </div>
+                                <span className="text-[11px] font-semibold text-slate-400">
+                                    원하는 탭을 터치하세요 👇
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2.5 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 shadow-inner">
+                                <button 
+                                    onClick={() => setActiveTab('achievement')} 
+                                    className={`relative py-3.5 px-3 rounded-xl transition-all duration-200 flex flex-col items-center justify-center text-center gap-1 border ${
+                                        activeTab === 'achievement' 
+                                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-600/30 border-transparent scale-[1.02] ring-2 ring-indigo-400/40' 
+                                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-xs'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-1.5 font-black text-xs sm:text-sm">
+                                        <Icon name="calculator" size={16} className={activeTab === 'achievement' ? 'text-white' : 'text-indigo-600'} />
+                                        <span>내 등급 확인</span>
+                                    </div>
+                                </button>
+
+                                <button 
+                                    onClick={() => setActiveTab('target')} 
+                                    className={`relative py-3.5 px-3 rounded-xl transition-all duration-200 flex flex-col items-center justify-center text-center gap-1 border ${
+                                        activeTab === 'target' 
+                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30 border-transparent scale-[1.02] ring-2 ring-purple-400/40' 
+                                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-xs'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-1.5 font-black text-xs sm:text-sm">
+                                        <Icon name="target" size={16} className={activeTab === 'target' ? 'text-white' : 'text-amber-500'} />
+                                        <span>기말 목표 점수</span>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="p-8 space-y-8">
-                            {/* 과목 선택 */}
+                        {/* 과목 선택 */}
+                        <div className="p-6 sm:p-8 space-y-7">
                             <section>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <Icon name="book-open" size={18} className="text-indigo-500" />
-                                    <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">과목 선택</h2>
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                            <Icon name="book-open" size={14} />
+                                        </div>
+                                        <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">과목 선택</h2>
+                                    </div>
+                                    <span className="text-[11px] text-indigo-600 font-bold bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100/50">
+                                        {selectedGrade}학년 2학기
+                                    </span>
                                 </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    {Object.keys(SUBJECT_CONFIG).map(id => (
-                                        <button key={id} onClick={() => setSelectedSubject(id)} className={`py-3 rounded-xl text-sm font-bold transition-all border-2 ${selectedSubject === id ? 'border-indigo-500 bg-indigo-50 text-indigo-600' : 'border-slate-100 bg-slate-50 text-slate-400'}`}>
-                                            {SUBJECT_CONFIG[id].name}
+                                    {Object.keys(currentGradeData.subjects).map(id => (
+                                        <button 
+                                            key={id} 
+                                            onClick={() => setSelectedSubject(id)} 
+                                            className={`py-3 px-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all border-2 ${
+                                                selectedSubject === id 
+                                                    ? 'border-indigo-600 bg-indigo-50/80 text-indigo-600 shadow-xs' 
+                                                    : 'border-slate-100 bg-slate-50/70 text-slate-400 hover:border-slate-200'
+                                            }`}
+                                        >
+                                            {currentGradeData.subjects[id].name}
                                         </button>
                                     ))}
                                 </div>
                             </section>
 
                             {/* 점수 입력 */}
-                            <section className="space-y-5">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <Icon name="settings" size={18} className="text-indigo-500" />
-                                    <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">점수 입력</h2>
+                            <section className="space-y-4">
+                                <div className="flex items-center justify-between mb-1">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                            <Icon name="edit-3" size={14} />
+                                        </div>
+                                        <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">점수 입력</h2>
+                                    </div>
+                                    <span className="text-[11px] text-slate-400 font-semibold bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                                        {config.weights.midterm === 0 ? '기말(40%) + 수행(60%)' : `중간(${config.weights.midterm*100}%) + 기말(${config.weights.final*100}%) + 수행(${config.maxScores.perf1 + config.maxScores.perf2}%)`}
+                                    </span>
                                 </div>
 
-                                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
+                                {/* 1. 수행평가 영역 */}
+                                <div className="bg-slate-50/90 p-5 rounded-2xl border border-slate-150 space-y-4">
                                     <div className="space-y-1">
-                                        <div className="flex justify-between items-center"><span className="text-xs font-bold text-indigo-500 uppercase tracking-tighter">수행평가 1</span><span className="text-[10px] text-slate-400 font-bold">만점 {config.maxScores.perf1}점</span></div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-extrabold text-indigo-600">수행평가 1</span>
+                                            <span className="text-[10px] text-slate-400 font-bold bg-white px-2 py-0.5 rounded-full border border-slate-100">만점 {config.maxScores.perf1}점</span>
+                                        </div>
                                         <p className="text-sm font-bold text-slate-700 mb-2">{config.perfNames[0]}</p>
-                                        <input type="number" name="perf1" value={scores.perf1} onChange={handleInputChange} placeholder="점수 입력" className="w-full bg-white p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none font-bold appearance-none" />
+                                        <input 
+                                            type="number" 
+                                            name="perf1" 
+                                            value={scores.perf1} 
+                                            onChange={handleInputChange} 
+                                            placeholder={`0 ~ ${config.maxScores.perf1}`} 
+                                            className="w-full bg-white p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-extrabold text-slate-800 appearance-none shadow-2xs" 
+                                        />
                                     </div>
                                     {config.maxScores.perf2 > 0 && (
-                                        <div className="space-y-1 pt-2 border-t border-slate-200">
-                                            <div className="flex justify-between items-center"><span className="text-xs font-bold text-indigo-500 uppercase tracking-tighter">수행평가 2</span><span className="text-[10px] text-slate-400 font-bold">만점 {config.maxScores.perf2}점</span></div>
+                                        <div className="space-y-1 pt-3 border-t border-slate-200/80">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xs font-extrabold text-indigo-600">수행평가 2</span>
+                                                <span className="text-[10px] text-slate-400 font-bold bg-white px-2 py-0.5 rounded-full border border-slate-100">만점 {config.maxScores.perf2}점</span>
+                                            </div>
                                             <p className="text-sm font-bold text-slate-700 mb-2">{config.perfNames[1]}</p>
-                                            <input type="number" name="perf2" value={scores.perf2} onChange={handleInputChange} placeholder="점수 입력" className="w-full bg-white p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none font-bold appearance-none" />
+                                            <input 
+                                                type="number" 
+                                                name="perf2" 
+                                                value={scores.perf2} 
+                                                onChange={handleInputChange} 
+                                                placeholder={`0 ~ ${config.maxScores.perf2}`} 
+                                                className="w-full bg-white p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-extrabold text-slate-800 appearance-none shadow-2xs" 
+                                            />
                                         </div>
                                     )}
                                 </div>
 
+                                {/* 2. 중간시험 (해당 과목만) */}
                                 {config.weights.midterm > 0 && (
-                                    <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                                        <div className="flex justify-between items-center mb-1"><span className="text-xs font-bold text-indigo-500 uppercase tracking-tighter">정기 시험</span><span className="text-[10px] text-slate-400 font-bold">만점 100점</span></div>
+                                    <div className="bg-slate-50/90 p-5 rounded-2xl border border-slate-150">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-xs font-extrabold text-indigo-600">정기 시험</span>
+                                            <span className="text-[10px] text-slate-400 font-bold bg-white px-2 py-0.5 rounded-full border border-slate-100">만점 100점 ({config.weights.midterm * 100}% 반영)</span>
+                                        </div>
                                         <p className="text-sm font-bold text-slate-700 mb-2">중간시험 점수</p>
-                                        <input type="number" name="midterm" value={scores.midterm} onChange={handleInputChange} placeholder="0 ~ 100" className="w-full bg-white p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none font-bold appearance-none" />
+                                        <input 
+                                            type="number" 
+                                            name="midterm" 
+                                            value={scores.midterm} 
+                                            onChange={handleInputChange} 
+                                            placeholder="0 ~ 100" 
+                                            className="w-full bg-white p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-extrabold text-slate-800 appearance-none shadow-2xs" 
+                                        />
                                     </div>
                                 )}
 
+                                {/* 3. 기말시험 또는 목표 등급 설정 */}
                                 {activeTab === 'achievement' ? (
-                                    <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                                        <div className="flex justify-between items-center mb-1"><span className="text-xs font-bold text-indigo-500 uppercase tracking-tighter">정기 시험</span><span className="text-[10px] text-slate-400 font-bold">만점 100점</span></div>
+                                    <div className="bg-slate-50/90 p-5 rounded-2xl border border-slate-150">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-xs font-extrabold text-indigo-600">정기 시험</span>
+                                            <span className="text-[10px] text-slate-400 font-bold bg-white px-2 py-0.5 rounded-full border border-slate-100">만점 100점 ({config.weights.final * 100}% 반영)</span>
+                                        </div>
                                         <p className="text-sm font-bold text-slate-700 mb-2">기말시험 점수</p>
-                                        <input type="number" name="final" value={scores.final} onChange={handleInputChange} placeholder="0 ~ 100" className="w-full bg-white p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none font-bold appearance-none" />
+                                        <input 
+                                            type="number" 
+                                            name="final" 
+                                            value={scores.final} 
+                                            onChange={handleInputChange} 
+                                            placeholder="0 ~ 100" 
+                                            className="w-full bg-white p-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-extrabold text-slate-800 appearance-none shadow-2xs" 
+                                        />
                                     </div>
                                 ) : (
-                                    <div className="bg-indigo-600 p-5 rounded-2xl shadow-lg">
-                                        <p className="text-sm font-bold text-white mb-3 flex items-center gap-2"><Icon name="target" size={16} /> 목표 성취도 설정</p>
+                                    <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-5 rounded-2xl shadow-lg shadow-indigo-500/15 text-white">
+                                        <p className="text-xs font-extrabold mb-3 flex items-center gap-1.5 uppercase tracking-wider text-indigo-100">
+                                            <Icon name="target" size={15} /> 목표 성취도 설정
+                                        </p>
                                         <div className="grid grid-cols-5 gap-2">
                                             {GRADE_THRESHOLDS.map(t => (
-                                                <button key={t.grade} onClick={() => handleInputChange({ target: { name: 'targetGrade', value: t.grade }})} className={`py-3 rounded-xl text-lg font-black transition-all ${scores.targetGrade === t.grade ? 'bg-white text-indigo-600 scale-105 shadow-md' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                                                <button 
+                                                    key={t.grade} 
+                                                    onClick={() => handleInputChange({ target: { name: 'targetGrade', value: t.grade }})} 
+                                                    className={`py-3 rounded-xl text-lg font-black transition-all ${
+                                                        scores.targetGrade === t.grade 
+                                                            ? 'bg-white text-indigo-600 scale-105 shadow-md' 
+                                                            : 'bg-white/15 text-white hover:bg-white/25'
+                                                    }`}
+                                                >
                                                     {t.grade}
                                                 </button>
                                             ))}
@@ -306,40 +632,95 @@
                             </section>
 
                             {/* 결과 섹션 */}
-                            <section className="animate-fade-in">
+                            <section className="animate-fade-in pt-1">
                                 {isFormComplete(activeTab) ? (
-                                    <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl">
-                                        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
+                                    <div className="bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 rounded-[2.5rem] p-7 sm:p-9 text-white relative overflow-hidden shadow-2xl shadow-indigo-950/20 border border-slate-800/80">
+                                        {/* 입체 글로우 조명 효과 */}
+                                        <div className="absolute top-0 right-1/4 w-48 h-48 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                                        <div className="absolute bottom-0 left-1/4 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
                                         <div className="relative z-10 flex flex-col items-center text-center">
                                             {activeTab === 'achievement' ? (
                                                 <>
-                                                    <Icon name="check-circle" size={40} className="text-indigo-400 mb-4" />
-                                                    <span className="text-7xl font-black italic tracking-tighter mb-2">{calculateAchievement().grade}</span>
-                                                    <div className="bg-white/10 px-4 py-1 rounded-full text-xs font-medium mb-6">
-                                                        총점: {calculateAchievement().roundedTotal}({calculateAchievement().total}) / 100
+                                                    <div className="w-13 h-13 rounded-2xl bg-indigo-500/15 ring-1 ring-indigo-400/30 flex items-center justify-center text-indigo-400 mb-3 shadow-inner">
+                                                        <Icon name="award" size={26} />
                                                     </div>
-                                                    <div className="w-full h-px bg-white/10 mb-6"></div>
-                                                    <p className="text-lg font-medium leading-relaxed">
-                                                        3학년 1학기 <span className="text-indigo-400 font-bold">[{config.name}]</span> 성취도는<br/>
-                                                        <span className="text-2xl font-bold underline underline-offset-8 decoration-indigo-500">[{calculateAchievement().grade}]</span> 입니다.
+                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-indigo-200 text-xs font-bold mb-3 border border-white/10">
+                                                        <span>{config.name} 성취도 결과</span>
+                                                    </div>
+                                                    <span className="text-7xl sm:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-300 drop-shadow-sm mb-2 px-2">
+                                                        {calculateAchievement().grade}
+                                                    </span>
+                                                    <div className="bg-white/10 px-4 py-1.5 rounded-full text-xs font-semibold mb-6 border border-white/10 text-slate-200">
+                                                        총점: <span className="font-bold text-white">{calculateAchievement().roundedTotal}</span> ({calculateAchievement().total}) / 100
+                                                    </div>
+                                                    <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent mb-6"></div>
+                                                    <p className="text-base sm:text-lg font-medium leading-relaxed text-slate-200">
+                                                        {selectedGrade}학년 2학기 <span className="text-indigo-400 font-extrabold">[{config.name}]</span> 성취도는<br/>
+                                                        <span className="text-2xl font-black text-white underline underline-offset-8 decoration-indigo-400 decoration-2">
+                                                            [{calculateAchievement().grade}]
+                                                        </span> 입니다.
                                                     </p>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Icon name="target" size={40} className="text-amber-400 mb-4" />
-                                                    <h3 className="text-amber-300 font-bold text-sm tracking-widest uppercase mb-4">{config.name} 목표 점수</h3>
+                                                    <div className="w-13 h-13 rounded-2xl bg-amber-500/15 ring-1 ring-amber-400/40 flex items-center justify-center text-amber-400 mb-3 shadow-inner shadow-amber-500/10">
+                                                        <Icon name="target" size={26} />
+                                                    </div>
+
+                                                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-400/10 border border-amber-400/25 text-amber-300 text-xs font-extrabold tracking-wide mb-3">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                                        {config.name} · 목표 [{scores.targetGrade}] 달성 기준
+                                                    </div>
+
                                                     {(() => {
-                                                        const needed = calculateTargetScore();
-                                                        if (needed <= 0) return <p className="text-emerald-400 font-black text-2xl mt-4">이미 목표 달성! 🎉</p>;
-                                                        if (needed > 100) return <div className="text-rose-400 font-bold text-xl mt-4 leading-tight">아쉽게도 달성이 어렵습니다 😢<br/><span className="text-xs text-slate-400 italic font-normal mt-2 leading-none">(기말시험 100점 초과 필요)</span></div>;
-                                                        return (
-                                                            <>
-                                                                <div className="flex items-baseline gap-1 mt-2">
-                                                                    <span className="text-6xl font-black italic">{needed.toFixed(2)}</span><span className="text-indigo-400 font-bold text-xl">점</span>
+                                                        const { raw, integerScore } = calculateTargetScore();
+                                                        if (raw <= 0) {
+                                                            return (
+                                                                <div className="py-6">
+                                                                    <p className="text-emerald-400 font-black text-3xl mb-2">이미 목표 달성! 🎉</p>
+                                                                    <p className="text-slate-300 text-sm font-medium">기말시험 점수와 무관하게 목표 성취도가 확보되었습니다.</p>
                                                                 </div>
-                                                                <div className="w-full h-px bg-white/10 my-6"></div>
-                                                                <p className="text-lg font-medium leading-relaxed">기말시험에서 <span className="text-indigo-400 font-extrabold">[{needed.toFixed(2)}]</span>점 이상<br/>맞아야 합니다.</p>
-                                                            </>
+                                                            );
+                                                        }
+                                                        if (integerScore > 100) {
+                                                            return (
+                                                                <div className="py-5">
+                                                                    <div className="w-12 h-12 rounded-full bg-rose-500/15 text-rose-400 flex items-center justify-center mx-auto mb-3">
+                                                                        <Icon name="alert-circle" size={26} />
+                                                                    </div>
+                                                                    <p className="text-rose-400 font-extrabold text-xl leading-snug">
+                                                                        아쉽게도 달성이 어렵습니다 😢
+                                                                    </p>
+                                                                    <p className="text-xs text-slate-400 mt-2">
+                                                                        (기말시험 100점 초과 필요 · 계산치: {raw.toFixed(2)}점)
+                                                                    </p>
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return (
+                                                            <div className="flex flex-col items-center w-full">
+                                                                <div className="flex items-baseline justify-center gap-2 my-3">
+                                                                    <span className="text-7xl sm:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-amber-100 to-amber-300 drop-shadow-md pr-2 pl-1">
+                                                                        {integerScore}
+                                                                    </span>
+                                                                    <span className="text-2xl sm:text-3xl font-black text-amber-400 select-none">점</span>
+                                                                </div>
+
+                                                                <div className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-medium text-slate-400 mb-5">
+                                                                    <span>최저 필요 기준:</span>
+                                                                    <span className="font-bold text-slate-300">{raw.toFixed(2)}점</span>
+                                                                    <span className="text-slate-500">→</span>
+                                                                    <span className="text-amber-300 font-bold">시험 점수 {integerScore}점 이상</span>
+                                                                </div>
+
+                                                                <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent mb-5"></div>
+                                                                
+                                                                <p className="text-base sm:text-lg font-medium leading-relaxed text-slate-200">
+                                                                    기말시험에서 <span className="text-amber-300 font-black text-xl sm:text-2xl underline underline-offset-4 decoration-amber-400/60">[{integerScore}]점 이상</span><br/>
+                                                                    맞아야 합니다.
+                                                                </p>
+                                                            </div>
                                                         );
                                                     })()}
                                                 </>
@@ -347,23 +728,28 @@
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="py-12 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-slate-300 flex flex-col items-center justify-center">
-                                        <Icon name="alert-circle" size={40} className="mb-3 opacity-20" />
-                                        <p className="text-sm font-bold">모든 점수를 입력해 주세요!</p>
-                                        <p className="text-xs mt-1">입력된 데이터를 기반으로 자동 계산됩니다.</p>
+                                    <div className="py-12 bg-slate-50/80 rounded-[2.2rem] border-2 border-dashed border-slate-200 text-slate-400 flex flex-col items-center justify-center">
+                                        <div className="w-10 h-10 rounded-full bg-slate-200/50 flex items-center justify-center mb-2 text-slate-400">
+                                            <Icon name="alert-circle" size={22} />
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-600">모든 점수를 입력해 주세요!</p>
+                                        <p className="text-xs mt-1 text-slate-400">입력된 데이터를 기반으로 실시간 계산됩니다.</p>
                                     </div>
                                 )}
                             </section>
                         </div>
                         
                         {/* 푸터 정보 */}
-                        <div className="px-8 py-6 bg-slate-50/80 border-t border-slate-100">
-                            <div className="flex items-center gap-2 text-[11px] text-slate-500 font-bold mb-3"><Icon name="info" size={14} className="text-indigo-400" /> 성적 산출 기준 (100점 만점)</div>
-                            <div className="grid grid-cols-5 gap-1">
+                        <div className="px-7 py-5 bg-slate-50/90 border-t border-slate-100">
+                            <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-bold mb-2.5">
+                                <Icon name="info" size={13} className="text-indigo-500" />
+                                <span>성적 산출 기준 (100점 만점)</span>
+                            </div>
+                            <div className="grid grid-cols-5 gap-1.5">
                                 {GRADE_THRESHOLDS.map(t => (
-                                    <div key={t.grade} className="flex flex-col items-center p-2 bg-white rounded-xl border border-slate-100 shadow-sm">
-                                        <span className="text-xs font-black text-slate-700">{t.grade}</span>
-                                        <span className="text-[10px] text-slate-400 font-medium">{t.min}점~</span>
+                                    <div key={t.grade} className="flex flex-col items-center py-2 bg-white rounded-xl border border-slate-150 shadow-2xs">
+                                        <span className="text-xs font-black text-slate-800">{t.grade}</span>
+                                        <span className="text-[10px] text-slate-400 font-semibold">{t.min}점~</span>
                                     </div>
                                 ))}
                             </div>
@@ -371,10 +757,12 @@
                     </div>
 
                     {/* 저작권 표시 */}
-                    <div className="mt-8 flex flex-col items-center gap-2 text-slate-400">
-                        <p className="text-sm font-medium flex items-center gap-1">꿈을 향한 너의 노력을 응원해! <span className="text-rose-400">♥</span></p>
-                        <div className="text-[11px] font-bold tracking-widest uppercase opacity-60 flex items-center gap-1.5 mt-2">
-                            <span className="w-8 h-[1px] bg-slate-300"></span>Created by 예진T<span className="w-8 h-[1px] bg-slate-300"></span>
+                    <div className="mt-8 mb-4 flex flex-col items-center gap-1 text-slate-400">
+                        <p className="text-xs font-semibold flex items-center gap-1 text-slate-500">
+                            꿈을 향한 너의 노력을 응원해! <span className="text-rose-400">♥</span>
+                        </p>
+                        <div className="text-[10px] font-bold tracking-widest uppercase opacity-60 flex items-center gap-1.5 mt-1">
+                            <span className="w-6 h-[1px] bg-slate-300"></span>Created by 예진T<span className="w-6 h-[1px] bg-slate-300"></span>
                         </div>
                     </div>
                 </div>
